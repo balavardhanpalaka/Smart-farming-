@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mekhava Smart Farmer (Productivity)</title>
+    <style>
+        /* --- CSS STYLING --- */
+        :root {
+            --neon-green: #39ff14;
+            --neon-red: #ff073a;
+            --neon-blue: #04d9ff;
+            --neon-yellow: #ffeb3b;
+            --dark-bg: #121212;
+            --panel-bg: #1e1e1e;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Nirmala UI', sans-serif;
+            background-color: var(--dark-bg);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+            background: linear-gradient(90deg, var(--neon-green), var(--neon-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+
+        .subtitle { text-align: center; color: #ccc; margin-bottom: 20px; }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+        }
+
+        h3 { color: var(--neon-yellow); border-bottom: 1px solid #444; padding-bottom: 10px; margin-top: 0; }
+
+        label { display: block; margin-top: 15px; font-weight: bold; color: #ddd; }
+        select, button, input {
+            width: 100%; padding: 12px; margin-top: 5px; border-radius: 8px; border: none;
+            background: #333; color: white; font-size: 16px; box-sizing: border-box;
+        }
+
+        /* Animated Button */
+        button {
+            margin-top: 25px; font-weight: bold; text-transform: uppercase;
+            background: linear-gradient(45deg, var(--neon-red), var(--neon-blue), var(--neon-green));
+            background-size: 400%; animation: glowing 20s linear infinite; cursor: pointer; color: black;
+        }
+        @keyframes glowing { 0% { background-position: 0 0; } 50% { background-position: 400% 0; } 100% { background-position: 0 0; } }
+
+        /* Animation Stage */
+        .visual-stage {
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+            min-height: 200px; position: relative; overflow: hidden; background: #252525;
+            border-bottom: 8px solid #5d4037; border-radius: 10px; margin-bottom: 15px;
+        }
+
+        .plant-container { transition: all 1s ease; transform-origin: bottom; transform: scaleY(0); display:flex; flex-direction:column; align-items:center;}
+        .stem { width: 8px; background: var(--neon-green); border-radius: 5px; transition: height 1.5s ease-out; }
+        .leaf-icon { font-size: 60px; margin-bottom: -10px; z-index: 2; animation: bounce 2s infinite ease-in-out; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .stat-box { background: #2a2a2a; padding: 15px; border-radius: 10px; text-align: center; }
+
+        .speedometer-wrapper { position: relative; width: 120px; height: 60px; overflow: hidden; margin: 0 auto; }
+        .speedometer-bg { width: 120px; height: 120px; background: conic-gradient(from 180deg, var(--neon-red) 0deg, yellow 90deg, var(--neon-green) 180deg, transparent 180deg); border-radius: 50%; }
+        .needle { width: 60px; height: 4px; background: white; position: absolute; bottom: 0; left: 0; transform-origin: 100% 50%; transform: rotate(0deg); transition: transform 1.5s ease; }
+
+        /* --- NEW: ADVICE CARD --- */
+        .advice-card {
+            grid-column: span 2; /* Takes full width below input/output on mobile, or bottom on desktop */
+            margin-top: 20px;
+            background: #1a2520;
+            border: 1px solid var(--neon-green);
+            padding: 20px;
+            border-radius: 10px;
+            display: none; /* Hidden until clicked */
+        }
+        .advice-title { color: var(--neon-green); font-size: 1.2rem; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .tip-item { margin-bottom: 10px; padding-left: 10px; border-left: 3px solid var(--neon-blue); }
+        .tip-header { font-weight: bold; color: #fff; }
+        .tip-body { color: #bbb; font-size: 0.9rem; }
+
+        @media (max-width: 700px) {
+            .container { grid-template-columns: 1fr; }
+            .advice-card { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Mekhava Smart Farm<br><span style="font-size:0.8em">మేఖవా స్మార్ట్ ఫార్మ్</span></h1>
+    <div class="subtitle">Productivity & Decision Tool</div>
+
+    <div class="container">
+        <div class="panel">
+            <h3>🌱 Crop Details / వివరాలు</h3>
+            
+            <label>Land Size (Acres) / భూమి (ఎకరాల్లో)</label>
+            <input type="number" id="acres" value="1" min="0.5" step="0.5">
+
+            <label>Crop / పంట</label>
+            <select id="crop">
+                <option value="rice">Rice (Paddy) / వరి 🌾</option>
+                <option value="corn">Corn / మొక్కజొన్న 🌽</option>
+                <option value="chili">Chili / మిరప 🌶️</option>
+                <option value="beans">Beans / చిక్కుడు 🫘</option>
+                <option value="tomato">Tomato / టమాటా 🍅</option>
+                <option value="mango">Mango / మామిడి 🥭</option>
+            </select>
+
+            <label>Soil Type / నేల రకం</label>
+            <select id="soil">
+                <option value="loamy">Loamy / ఎర్ర నేల</option>
+                <option value="clay">Clay / బంక మట్టి</option>
+                <option value="sandy">Sandy / ఇసుక నేల</option>
+                <option value="black">Black / నల్ల రేగడి</option>
+            </select>
+
+            <label>Water Level / నీరు</label>
+            <select id="water">
+                <option value="medium">Medium / సరిపడా</option>
+                <option value="high">High / ఎక్కువ</option>
+                <option value="low">Low / తక్కువ</option>
+            </select>
+
+            <button onclick="calculateFarming()">🚀 Analyze & Get Tips</button>
+        </div>
+
+        <div class="panel">
+            <h3>📊 Forecast / ఫలితాలు</h3>
+            
+            <div class="visual-stage">
+                <div class="plant-container" id="plantObj">
+                    <div class="leaf-icon" id="plantIcon">🌱</div>
+                    <div class="stem" id="plantStem"></div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <small>Yield Success</small>
+                    <h2 id="yieldText" style="color:white;">0%</h2>
+                    <div style="background:#444; height:8px; border-radius:4px;"><div id="yieldBar" style="width:0%; height:100%; background:var(--neon-green);"></div></div>
+                </div>
+                <div class="stat-box">
+                    <small>Est. Profit</small>
+                    <div class="speedometer-wrapper"><div class="speedometer-bg"></div><div class="needle" id="profitNeedle"></div></div>
+                    <div style="color:var(--neon-green); font-weight:bold;" id="profitText">₹0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="advice-card" id="adviceCard">
+            <div class="advice-title">💡 Productivity Tips / రైతు సలహాలు</div>
+            <div id="tipsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA: FARMING TIPS (DATABASE IN JS) ---
+        const cropTips = {
+            rice: [
+                { title: "SRI Method (శ్రీ సాగు)", body: "Use SRI method to use 40% less water and get 20% more yield." },
+                { title: "Zinc Deficiency", body: "If leaves turn yellow, apply Zinc Sulfate immediately." },
+                { title: "Profit Hack", body: "After harvest, plant Black Gram (Minumu) to restore soil nitrogen." }
+            ],
+            corn: [
+                { title: "Spacing", body: "Maintain 60cm x 20cm spacing for bigger cobs." },
+                { title: "Fall Armyworm", body: "Set up Pheromone traps to catch insects early." },
+                { title: "Intercropping", body: "Plant Cucumber or Cowpea between rows for extra income." }
+            ],
+            chili: [
+                { title: "Trap Crops (రక్షణ పంట)", body: "Plant Marigold (Banthi) around the field to trap borers." },
+                { title: "Leaf Curl", body: "Use Sour Buttermilk spray to control leaf curl virus naturally." },
+                { title: "Drip Irrigation", body: "Use Drip to prevent root rot and save water." }
+            ],
+            beans: [
+                { title: "Support System", body: "Use bamboo stakes to support vines; keeps pods off ground." },
+                { title: "Harvesting", body: "Pick beans every 3 days to encourage new flowering." }
+            ],
+            tomato: [
+                { title: "Staking", body: "Tie plants to sticks to prevent fruit rot from touching soil." },
+                { title: "Mulching", body: "Cover soil with dry grass to keep moisture and stop weeds." }
+            ],
+            mango: [
+                { title: "Pruning (కత్తిరింపు)", body: "Prune dead branches after harvest to allow sunlight." },
+                { title: "Fruit Drop", body: "Spray NAA (20ppm) if small fruits are falling off." },
+                { title: "Intercrop", body: "Grow Ginger or Turmeric in the shade of trees for bonus cash." }
+            ]
+        };
+
+        function calculateFarming() {
+            // 1. Get Inputs
+            const acres = parseFloat(document.getElementById('acres').value) || 1;
+            const crop = document.getElementById('crop').value;
+            const soil = document.getElementById('soil').value;
+            const water = document.getElementById('water').value;
+
+            // 2. Logic (Simplified for brevity)
+            let yieldScore = 60; 
+            let profitBase = 30000;
+            let icon = "🌱";
+
+            if (crop === 'rice') { icon = "🌾"; profitBase = 25000; if(water==='low') yieldScore -= 30; if(water==='high') yieldScore += 20; }
+            if (crop === 'corn') { icon = "🌽"; profitBase = 20000; if(soil==='loamy') yieldScore += 15; }
+            if (crop === 'chili') { icon = "🌶️"; profitBase = 45000; if(soil==='black') yieldScore += 20; }
+            if (crop === 'beans') { icon = "🫘"; profitBase = 30000; }
+            if (crop === 'tomato') { icon = "🍅"; profitBase = 35000; }
+            if (crop === 'mango') { icon = "🥭"; profitBase = 60000; if(water==='high') yieldScore -= 20; }
+
+            // Math
+            if (yieldScore > 100) yieldScore = 100;
+            const totalProfit = Math.floor((profitBase * acres) * (yieldScore / 100));
+
+            // 3. Update Visuals
+            document.getElementById('yieldText').innerText = yieldScore + "%";
+            document.getElementById('yieldBar').style.width = yieldScore + "%";
+            document.getElementById('yieldBar').style.background = yieldScore < 40 ? "#ff073a" : "#39ff14";
+            
+            document.getElementById('profitText').innerText = "₹" + totalProfit.toLocaleString('en-IN');
+            const angle = (yieldScore / 100) * 180;
+            document.getElementById('profitNeedle').style.transform = `rotate(${angle}deg)`;
+
+            // Plant Anim
+            const plantObj = document.getElementById('plantObj');
+            const plantStem = document.getElementById('plantStem');
+            plantObj.style.transform = "scaleY(0)";
+            document.getElementById('plantIcon').innerText = icon;
+            setTimeout(() => {
+                plantObj.style.transform = "scaleY(1)";
+                plantStem.style.height = ((yieldScore/100)*120) + "px";
+            }, 100);
+
+            // 4. --- GENERATE SMART ADVICE ---
+            const adviceCard = document.getElementById('adviceCard');
+            const tipsContent = document.getElementById('tipsContent');
+            const myTips = cropTips[crop] || [];
+
+            // Build HTML for tips
+            let tipsHTML = "";
+            myTips.forEach(tip => {
+                tipsHTML += `
+                    <div class="tip-item">
+                        <div class="tip-header">${tip.title}</div>
+                        <div class="tip-body">${tip.body}</div>
+                    </div>
+                `;
+            });
+
+            // Show card
+            tipsContent.innerHTML = tipsHTML;
+            adviceCard.style.display = 'block';
+            
+            // Scroll to advice on mobile
+            if(window.innerWidth < 700) {
+                adviceCard.scrollIntoView({behavior: "smooth"});
+            }
+        }
+    </script>
+</body>
+</html>
