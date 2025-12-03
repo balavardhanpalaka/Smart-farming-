@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mekhava Smart Farmer (Productivity)</title>
+    <title>Mekhava Expert Farmer</title>
     <style>
         /* --- CSS STYLING --- */
         :root {
@@ -11,6 +11,7 @@
             --neon-red: #ff073a;
             --neon-blue: #04d9ff;
             --neon-yellow: #ffeb3b;
+            --neon-orange: #ff9e00;
             --dark-bg: #121212;
             --panel-bg: #1e1e1e;
         }
@@ -65,7 +66,9 @@
             margin-top: 25px; font-weight: bold; text-transform: uppercase;
             background: linear-gradient(45deg, var(--neon-red), var(--neon-blue), var(--neon-green));
             background-size: 400%; animation: glowing 20s linear infinite; cursor: pointer; color: black;
+            transition: transform 0.2s;
         }
+        button:active { transform: scale(0.98); }
         @keyframes glowing { 0% { background-position: 0 0; } 50% { background-position: 400% 0; } 100% { background-position: 0 0; } }
 
         /* Animation Stage */
@@ -88,20 +91,38 @@
         .speedometer-bg { width: 120px; height: 120px; background: conic-gradient(from 180deg, var(--neon-red) 0deg, yellow 90deg, var(--neon-green) 180deg, transparent 180deg); border-radius: 50%; }
         .needle { width: 60px; height: 4px; background: white; position: absolute; bottom: 0; left: 0; transform-origin: 100% 50%; transform: rotate(0deg); transition: transform 1.5s ease; }
 
-        /* --- NEW: ADVICE CARD --- */
+        /* --- NEW: DYNAMIC ADVICE CARD --- */
         .advice-card {
-            grid-column: span 2; /* Takes full width below input/output on mobile, or bottom on desktop */
+            grid-column: span 2; 
             margin-top: 20px;
             background: #1a2520;
             border: 1px solid var(--neon-green);
             padding: 20px;
             border-radius: 10px;
-            display: none; /* Hidden until clicked */
+            display: none; 
         }
-        .advice-title { color: var(--neon-green); font-size: 1.2rem; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
-        .tip-item { margin-bottom: 10px; padding-left: 10px; border-left: 3px solid var(--neon-blue); }
-        .tip-header { font-weight: bold; color: #fff; }
-        .tip-body { color: #bbb; font-size: 0.9rem; }
+        .advice-title { color: var(--neon-green); font-size: 1.2rem; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        
+        .tip-item { 
+            background: #222; 
+            margin-bottom: 12px; 
+            padding: 12px; 
+            border-radius: 8px; 
+            border-left: 5px solid #555;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .tip-icon { font-size: 1.5rem; min-width: 30px; }
+        .tip-content { flex-grow: 1; }
+        .tip-header { font-weight: bold; font-size: 1rem; color: #fff; margin-bottom: 3px; }
+        .tip-body { color: #ccc; font-size: 0.9rem; line-height: 1.4; }
+
+        /* Warning Levels */
+        .border-red { border-left-color: var(--neon-red); }
+        .border-yellow { border-left-color: var(--neon-yellow); }
+        .border-green { border-left-color: var(--neon-green); }
 
         @media (max-width: 700px) {
             .container { grid-template-columns: 1fr; }
@@ -111,12 +132,12 @@
 </head>
 <body>
 
-    <h1>Mekhava Smart Farm<br><span style="font-size:0.8em">మేఖవా స్మార్ట్ ఫార్మ్</span></h1>
-    <div class="subtitle">Productivity & Decision Tool Developed by balavardhan</div>
+    <h1>Mekhava Siri<br><span style="font-size:0.8em">మేఖవా సిరి (Expert Mode)</span></h1>
+    <div class="subtitle">Condition-Specific Farming Advice Developed by Balavardhan</div>
 
     <div class="container">
         <div class="panel">
-            <h3>🌱 Crop Details / వివరాలు</h3>
+            <h3>🌱 Conditions / వివరాలు</h3>
             
             <label>Land Size (Acres) / భూమి (ఎకరాల్లో)</label>
             <input type="number" id="acres" value="1" min="0.5" step="0.5">
@@ -126,24 +147,28 @@
                 <option value="rice">Rice (Paddy) / వరి 🌾</option>
                 <option value="corn">Corn / మొక్కజొన్న 🌽</option>
                 <option value="chili">Chili / మిరప 🌶️</option>
-                <option value="beans">Beans / చిక్కుడు 🫘</option>
                 <option value="tomato">Tomato / టమాటా 🍅</option>
                 <option value="mango">Mango / మామిడి 🥭</option>
             </select>
 
             <label>Soil Type / నేల రకం</label>
             <select id="soil">
-                <option value="loamy">Loamy / ఎర్ర నేల</option>
-                <option value="clay">Clay / బంక మట్టి</option>
+                <option value="loamy">Loamy (Red) / ఎర్ర నేల</option>
+                <option value="clay">Clay (Black) / బంక/నల్ల రేగడి</option>
                 <option value="sandy">Sandy / ఇసుక నేల</option>
-                <option value="black">Black / నల్ల రేగడి</option>
             </select>
 
             <label>Water Level / నీరు</label>
             <select id="water">
                 <option value="medium">Medium / సరిపడా</option>
-                <option value="high">High / ఎక్కువ</option>
-                <option value="low">Low / తక్కువ</option>
+                <option value="high">High / ఎక్కువ (Flooded)</option>
+                <option value="low">Low / తక్కువ (Drought)</option>
+            </select>
+
+            <label>Season / కాలం</label>
+            <select id="season">
+                <option value="kharif">Kharif / వానాకాలం</option>
+                <option value="rabi">Rabi / చలికాలం</option>
             </select>
 
             <button onclick="calculateFarming()">🚀 Analyze & Get Tips</button>
@@ -174,43 +199,52 @@
         </div>
 
         <div class="advice-card" id="adviceCard">
-            <div class="advice-title">💡 Productivity Tips / రైతు సలహాలు</div>
+            <div class="advice-title">💡 Expert Advice (Based on Conditions)</div>
             <div id="tipsContent"></div>
         </div>
     </div>
 
     <script>
-        // --- DATA: FARMING TIPS (DATABASE IN JS) ---
-        const cropTips = {
-            rice: [
-                { title: "SRI Method (శ్రీ సాగు)", body: "Use SRI method to use 40% less water and get 20% more yield." },
-                { title: "Zinc Deficiency", body: "If leaves turn yellow, apply Zinc Sulfate immediately." },
-                { title: "Profit Hack", body: "After harvest, plant Black Gram (Minumu) to restore soil nitrogen." }
-            ],
-            corn: [
-                { title: "Spacing", body: "Maintain 60cm x 20cm spacing for bigger cobs." },
-                { title: "Fall Armyworm", body: "Set up Pheromone traps to catch insects early." },
-                { title: "Intercropping", body: "Plant Cucumber or Cowpea between rows for extra income." }
-            ],
-            chili: [
-                { title: "Trap Crops (రక్షణ పంట)", body: "Plant Marigold (Banthi) around the field to trap borers." },
-                { title: "Leaf Curl", body: "Use Sour Buttermilk spray to control leaf curl virus naturally." },
-                { title: "Drip Irrigation", body: "Use Drip to prevent root rot and save water." }
-            ],
-            beans: [
-                { title: "Support System", body: "Use bamboo stakes to support vines; keeps pods off ground." },
-                { title: "Harvesting", body: "Pick beans every 3 days to encourage new flowering." }
-            ],
-            tomato: [
-                { title: "Staking", body: "Tie plants to sticks to prevent fruit rot from touching soil." },
-                { title: "Mulching", body: "Cover soil with dry grass to keep moisture and stop weeds." }
-            ],
-            mango: [
-                { title: "Pruning (కత్తిరింపు)", body: "Prune dead branches after harvest to allow sunlight." },
-                { title: "Fruit Drop", body: "Spray NAA (20ppm) if small fruits are falling off." },
-                { title: "Intercrop", body: "Grow Ginger or Turmeric in the shade of trees for bonus cash." }
-            ]
-        };
+        // --- DYNAMIC TIP DATABASE ---
+        // Generates tips based on conditions, not just crop
+        function getDynamicTips(crop, soil, water, season) {
+            let tips = [];
+
+            // 1. CROP + SOIL LOGIC
+            if (crop === 'rice' && soil === 'sandy') {
+                tips.push({ type: 'red', icon: '💧', title: 'Critical Water Loss', body: 'Sandy soil drains water too fast for Rice. <b>Action:</b> Apply Green Manure (Jeeluga) or Tank Silt to improve water holding.' });
+            }
+            if ((crop === 'chili' || crop === 'corn') && (soil === 'clay' || soil === 'black') && water === 'high') {
+                tips.push({ type: 'red', icon: '⚠️', title: 'Root Rot Danger', body: 'Clay soil + High water = Root Rot. <b>Action:</b> Dig drainage trenches immediately to let water out.' });
+            }
+            if (crop === 'tomato' && soil === 'sandy' && water === 'low') {
+                tips.push({ type: 'red', icon: '🍂', title: 'Blossom End Rot Risk', body: 'Low water in sandy soil causes Calcium deficiency. <b>Action:</b> Spray Calcium Chloride and water regularly.' });
+            }
+
+            // 2. CROP + SEASON LOGIC
+            if (crop === 'mango' && season === 'rabi') {
+                tips.push({ type: 'yellow', icon: '❄️', title: 'Powdery Mildew Alert', body: 'Cool nights in Rabi cause fungus on mango flowers. <b>Action:</b> Spray Wettable Sulfur if you see white powder.' });
+            }
+            if (crop === 'rice' && season === 'rabi') {
+                tips.push({ type: 'yellow', icon: '🌡️', title: 'Cold Sensitivity', body: 'Zinc deficiency is common in Rabi Rice. <b>Action:</b> Apply Zinc Sulfate if leaves turn yellow/brown.' });
+            }
+
+            // 3. CROP + WATER LOGIC
+            if (water === 'low') {
+                tips.push({ type: 'yellow', icon: '🌵', title: 'Drought Management', body: `Moisture is low for ${crop}. <b>Action:</b> Use Drip Irrigation and Mulching (cover soil with straw) to save 50% water.` });
+            }
+            if (crop === 'corn' && water === 'high') {
+                tips.push({ type: 'red', icon: '🚫', title: 'Waterlogging Alert', body: 'Corn cannot survive standing water for >2 days. Drain field immediately.' });
+            }
+
+            // 4. GENERAL BEST PRACTICES (Always added based on Crop)
+            if (crop === 'chili') tips.push({ type: 'green', icon: '🐞', title: 'Pest Trap', body: 'Intercrop with Marigold (Banthi) to trap borer insects naturally.' });
+            if (crop === 'rice') tips.push({ type: 'green', icon: '📈', title: 'Yield Boost', body: 'Try SRI (System of Rice Intensification) method - Plant younger seedlings (8-12 days old).' });
+            if (crop === 'mango') tips.push({ type: 'green', icon: '✂️', title: 'Pruning', body: 'After harvest, prune dead branches to allow sunlight for next season.' });
+            if (crop === 'tomato') tips.push({ type: 'green', icon: '🥢', title: 'Staking', body: 'Use bamboo sticks to keep fruits off the ground and prevent rotting.' });
+
+            return tips;
+        }
 
         function calculateFarming() {
             // 1. Get Inputs
@@ -218,24 +252,40 @@
             const crop = document.getElementById('crop').value;
             const soil = document.getElementById('soil').value;
             const water = document.getElementById('water').value;
+            const season = document.getElementById('season').value;
 
-            // 2. Logic (Simplified for brevity)
+            // 2. Logic Variables
             let yieldScore = 60; 
             let profitBase = 30000;
             let icon = "🌱";
 
-            if (crop === 'rice') { icon = "🌾"; profitBase = 25000; if(water==='low') yieldScore -= 30; if(water==='high') yieldScore += 20; }
-            if (crop === 'corn') { icon = "🌽"; profitBase = 20000; if(soil==='loamy') yieldScore += 15; }
-            if (crop === 'chili') { icon = "🌶️"; profitBase = 45000; if(soil==='black') yieldScore += 20; }
-            if (crop === 'beans') { icon = "🫘"; profitBase = 30000; }
-            if (crop === 'tomato') { icon = "🍅"; profitBase = 35000; }
-            if (crop === 'mango') { icon = "🥭"; profitBase = 60000; if(water==='high') yieldScore -= 20; }
+            // Basic Yield Logic (Simplified)
+            if (crop === 'rice') { 
+                icon = "🌾"; profitBase = 25000; 
+                if(soil === 'clay') yieldScore += 20;
+                if(soil === 'sandy') yieldScore -= 30;
+                if(water === 'high') yieldScore += 10;
+            }
+            else if (crop === 'corn') { 
+                icon = "🌽"; profitBase = 20000; 
+                if(water === 'high') yieldScore -= 40; // Corn hates water
+                if(soil === 'loamy') yieldScore += 15;
+            }
+            else if (crop === 'chili') { 
+                icon = "🌶️"; profitBase = 45000; 
+                if(water === 'high') yieldScore -= 30; // Root rot
+            }
+            else if (crop === 'tomato') { icon = "🍅"; profitBase = 35000; }
+            else if (crop === 'mango') { icon = "🥭"; profitBase = 60000; }
 
-            // Math
+            // General Modifiers
+            if (water === 'low') yieldScore -= 20; 
             if (yieldScore > 100) yieldScore = 100;
+            if (yieldScore < 10) yieldScore = 10;
+
             const totalProfit = Math.floor((profitBase * acres) * (yieldScore / 100));
 
-            // 3. Update Visuals
+            // 3. Update Stats
             document.getElementById('yieldText').innerText = yieldScore + "%";
             document.getElementById('yieldBar').style.width = yieldScore + "%";
             document.getElementById('yieldBar').style.background = yieldScore < 40 ? "#ff073a" : "#39ff14";
@@ -254,27 +304,34 @@
                 plantStem.style.height = ((yieldScore/100)*120) + "px";
             }, 100);
 
-            // 4. --- GENERATE SMART ADVICE ---
+            // 4. --- GENERATE DYNAMIC TIPS ---
             const adviceCard = document.getElementById('adviceCard');
             const tipsContent = document.getElementById('tipsContent');
-            const myTips = cropTips[crop] || [];
+            
+            // Get specific tips
+            const myTips = getDynamicTips(crop, soil, water, season);
 
-            // Build HTML for tips
+            // Build HTML
             let tipsHTML = "";
             myTips.forEach(tip => {
+                let borderClass = 'border-green';
+                if(tip.type === 'red') borderClass = 'border-red';
+                if(tip.type === 'yellow') borderClass = 'border-yellow';
+
                 tipsHTML += `
-                    <div class="tip-item">
-                        <div class="tip-header">${tip.title}</div>
-                        <div class="tip-body">${tip.body}</div>
+                    <div class="tip-item ${borderClass}">
+                        <div class="tip-icon">${tip.icon}</div>
+                        <div class="tip-content">
+                            <div class="tip-header">${tip.title}</div>
+                            <div class="tip-body">${tip.body}</div>
+                        </div>
                     </div>
                 `;
             });
 
-            // Show card
             tipsContent.innerHTML = tipsHTML;
             adviceCard.style.display = 'block';
             
-            // Scroll to advice on mobile
             if(window.innerWidth < 700) {
                 adviceCard.scrollIntoView({behavior: "smooth"});
             }
@@ -282,3 +339,4 @@
     </script>
 </body>
 </html>
+
